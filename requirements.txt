@@ -1,0 +1,3 @@
+fastapi[standard]
+nvidia-ml-py
+psutil
