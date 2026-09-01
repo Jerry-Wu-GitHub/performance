@@ -31,8 +31,9 @@ const NetworkPanelComponent = {
 
         this.mainChart = new LineChart(document.getElementById('network-chart'), {
             maxTimeSpan: AppConfig.CHART_TIME_WINDOW,
-            maxValue: 1048576,
+            maxValue: 1024,        // 初始 1 KB/s，后续自动动态调整
             enableSecondLine: true,
+            enableDynamicYAxis: true,
         });
     },
 

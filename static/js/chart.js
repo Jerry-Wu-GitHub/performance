@@ -7,10 +7,11 @@ class LineChart {
      * @param {HTMLCanvasElement} canvas - 画布元素
      * @param {object} options - 配置项
      * @param {number} options.maxTimeSpan - 最大时间窗口（毫秒）
-     * @param {number} options.maxValue - Y轴最大值
+     * @param {number} options.maxValue - Y轴初始最大值
      * @param {number} options.strokeWidth - 线宽
      * @param {boolean} options.enableGradient - 是否启用渐变填充
      * @param {boolean} options.enableSecondLine - 是否启用第二条线
+     * @param {boolean} options.enableDynamicYAxis - 是否启用动态Y轴范围
      */
     constructor(canvas, options = {}) {
         this.canvas = canvas;
@@ -24,6 +25,7 @@ class LineChart {
         this.strokeWidth = options.strokeWidth || 1.5;
         this.enableGradient = options.enableGradient !== false;
         this.enableSecondLine = options.enableSecondLine || false;
+        this.enableDynamicYAxis = options.enableDynamicYAxis || false;
 
         this._resizeCanvas();
         window.addEventListener('resize', () => this._resizeCanvas());
@@ -46,7 +48,11 @@ class LineChart {
             this._purgeOldPoints(this.secondDataPoints);
         }
 
-        this._adjustMaxValue(value);
+        // 固定范围模式下只向上调整
+        if (!this.enableDynamicYAxis) {
+            this._adjustMaxValue(value);
+        }
+
         this.render();
     }
 
@@ -70,6 +76,11 @@ class LineChart {
 
         const timeRange = this._getTimeRange();
         if (timeRange.duration <= 0) return;
+
+        // 动态Y轴模式：根据当前窗口数据重新计算上限
+        if (this.enableDynamicYAxis) {
+            this._updateDynamicMaxValue();
+        }
 
         const accent = ThemeManager.getAccentColor();
 
@@ -115,10 +126,45 @@ class LineChart {
         return { startTime, endTime, duration: endTime - startTime };
     }
 
+    /**
+     * 固定范围模式：只向上调整Y轴上限
+     */
     _adjustMaxValue(value) {
         if (value > this.maxValue * 0.85) {
             this.maxValue = Math.ceil(value * 1.2 / 10) * 10;
         }
+    }
+
+    /**
+     * 动态范围模式：根据当前所有可见数据计算Y轴上限，可升可降
+     */
+    _updateDynamicMaxValue() {
+        let maxValue = 0;
+
+        // 遍历主线数据
+        for (const point of this.dataPoints) {
+            if (point.value > maxValue) {
+                maxValue = point.value;
+            }
+        }
+
+        // 遍历副线数据
+        if (this.enableSecondLine) {
+            for (const point of this.secondDataPoints) {
+                if (point.value > maxValue) {
+                    maxValue = point.value;
+                }
+            }
+        }
+
+        // 最小下限保护，避免除以0
+        if (maxValue <= 0) {
+            this.maxValue = 1;
+            return;
+        }
+
+        // 顶部保留20%余量
+        this.maxValue = Math.ceil(maxValue * 1.2);
     }
 
     _drawLine(ctx, points, width, height, timeRange, color, lineWidth, alpha = 1) {
@@ -155,7 +201,6 @@ class LineChart {
 
         ctx.beginPath();
         let hasStarted = false;
-        let firstX = 0;
 
         for (let i = 0; i < this.dataPoints.length; i++) {
             const point = this.dataPoints[i];
@@ -167,7 +212,6 @@ class LineChart {
             if (!hasStarted) {
                 ctx.moveTo(x, height);
                 ctx.lineTo(x, y);
-                firstX = x;
                 hasStarted = true;
             } else {
                 ctx.lineTo(x, y);
