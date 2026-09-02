@@ -18,7 +18,6 @@ class LineChart {
         this.context = canvas.getContext('2d');
         this.dataPoints = [];       // [{ time: number, value: number }]
         this.secondDataPoints = []; // 第二条线数据
-
         this.maxTimeSpan = options.maxTimeSpan || 60000;
         this.maxValue = options.maxValue || 100;
         this.minValue = options.minValue || 0;
@@ -26,6 +25,10 @@ class LineChart {
         this.enableGradient = options.enableGradient !== false;
         this.enableSecondLine = options.enableSecondLine || false;
         this.enableDynamicYAxis = options.enableDynamicYAxis || false;
+
+        // 【修复】设置安全默认值，防止undefined
+        this.displayWidth = 0;
+        this.displayHeight = 0;
 
         this._resizeCanvas();
         window.addEventListener('resize', () => this._resizeCanvas());
@@ -38,8 +41,13 @@ class LineChart {
      * @param {number} [timestamp] - 时间戳（毫秒），不传则使用当前时间
      */
     push(value, secondValue = null, timestamp = null) {
-        const time = timestamp || Date.now();
-
+        // 校验时间戳，非法则回退到本机时间
+        let time;
+        if (timestamp && Number.isFinite(timestamp)) {
+            time = timestamp;
+        } else {
+            time = Date.now();
+        }
         this.dataPoints.push({ time, value });
         this._purgeOldPoints(this.dataPoints);
 
@@ -48,11 +56,10 @@ class LineChart {
             this._purgeOldPoints(this.secondDataPoints);
         }
 
-        // 固定范围模式下只向上调整
+        // 固定范围模式：只向上调整Y轴上限
         if (!this.enableDynamicYAxis) {
             this._adjustMaxValue(value);
         }
-
         this.render();
     }
 
@@ -67,15 +74,20 @@ class LineChart {
      * 主动触发重绘
      */
     render() {
-        const ctx = this.context;
         const width = this.displayWidth;
         const height = this.displayHeight;
 
+        // 【修复】画布宽高无效，直接退出，不执行任何canvas操作
+        if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <=0) {
+            return;
+        }
+
+        const ctx = this.context;
         ctx.clearRect(0, 0, width, height);
         if (this.dataPoints.length < 2) return;
 
         const timeRange = this._getTimeRange();
-        if (timeRange.duration <= 0) return;
+        if (!Number.isFinite(timeRange.duration) || timeRange.duration <= 0) return;
 
         // 动态Y轴模式：根据当前窗口数据重新计算上限
         if (this.enableDynamicYAxis) {
@@ -99,9 +111,10 @@ class LineChart {
 
     _resizeCanvas() {
         const rect = this.canvas.getBoundingClientRect();
-        // 元素不可见时跳过，避免画布失效
-        if (rect.width <= 0 || rect.height <= 0) return;
-
+        // 元素不可见时，不更新尺寸，保留旧值
+        if (rect.width <= 0 || rect.height <= 0) {
+            return;
+        }
         const dpr = window.devicePixelRatio || 1;
         this.canvas.width = rect.width * dpr;
         this.canvas.height = rect.height * dpr;
@@ -140,14 +153,12 @@ class LineChart {
      */
     _updateDynamicMaxValue() {
         let maxValue = 0;
-
         // 遍历主线数据
         for (const point of this.dataPoints) {
             if (point.value > maxValue) {
                 maxValue = point.value;
             }
         }
-
         // 遍历副线数据
         if (this.enableSecondLine) {
             for (const point of this.secondDataPoints) {
@@ -156,13 +167,11 @@ class LineChart {
                 }
             }
         }
-
         // 最小下限保护，避免除以0
         if (maxValue <= 0) {
             this.maxValue = 1;
             return;
         }
-
         // 顶部保留20%余量
         this.maxValue = Math.ceil(maxValue * 1.2);
     }
@@ -170,13 +179,18 @@ class LineChart {
     _drawLine(ctx, points, width, height, timeRange, color, lineWidth, alpha = 1) {
         ctx.beginPath();
         let hasStarted = false;
+        const {startTime, endTime} = timeRange;
 
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
-            if (point.time < timeRange.startTime) continue;
+            // 过滤太早 / 未来时间点，防止时钟偏移
+            if (point.time < startTime || point.time > endTime) continue;
 
-            const x = ((point.time - timeRange.startTime) / timeRange.duration) * width;
+            const ratio = (point.time - startTime) / (endTime - startTime);
+            const x = ratio * width;
             const y = height - (point.value / this.maxValue) * height;
+
+            if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
 
             if (!hasStarted) {
                 ctx.moveTo(x, y);
@@ -195,19 +209,25 @@ class LineChart {
     }
 
     _drawGradientFill(ctx, width, height, timeRange, accent) {
+        // width/height 进来之前 render()已经做过有限校验
         const gradient = ctx.createLinearGradient(0, 0, 0, height);
         gradient.addColorStop(0, this._hexToRgba(accent, 0.3));
         gradient.addColorStop(1, this._hexToRgba(accent, 0.02));
 
         ctx.beginPath();
         let hasStarted = false;
+        let lastValidX = 0;
+        const {startTime, endTime} = timeRange;
 
         for (let i = 0; i < this.dataPoints.length; i++) {
             const point = this.dataPoints[i];
-            if (point.time < timeRange.startTime) continue;
+            if (point.time < startTime || point.time > endTime) continue;
 
-            const x = ((point.time - timeRange.startTime) / timeRange.duration) * width;
+            const ratio = (point.time - startTime) / (endTime - startTime);
+            const x = ratio * width;
             const y = height - (point.value / this.maxValue) * height;
+
+            if(!Number.isFinite(x) || !Number.isFinite(y)) continue;
 
             if (!hasStarted) {
                 ctx.moveTo(x, height);
@@ -216,12 +236,12 @@ class LineChart {
             } else {
                 ctx.lineTo(x, y);
             }
+            lastValidX = x;
         }
 
         if (!hasStarted) return;
 
-        const lastX = ((this.dataPoints[this.dataPoints.length - 1].time - timeRange.startTime) / timeRange.duration) * width;
-        ctx.lineTo(lastX, height);
+        ctx.lineTo(lastValidX, height);
         ctx.closePath();
         ctx.fillStyle = gradient;
         ctx.fill();

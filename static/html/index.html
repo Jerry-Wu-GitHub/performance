@@ -4,25 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance Monitor</title>
-    <link rel="stylesheet" href="/static/css/base.css">
-    <link rel="stylesheet" href="/static/css/themes.css">
-    <link rel="stylesheet" href="/static/css/layout.css">
-    <link rel="stylesheet" href="/static/css/components.css">
+    <script>
+        // 自动提取当前页面路径的目录部分作为 base
+        (function() {
+            var path = window.location.pathname;
+            var base = path.substring(0, path.lastIndexOf('/') + 1);
+            var baseTag = document.createElement('base');
+            baseTag.href = base;
+            document.head.appendChild(baseTag);
+        })();
+    </script>
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/themes.css">
+    <link rel="stylesheet" href="static/css/layout.css">
+    <link rel="stylesheet" href="static/css/components.css">
 </head>
 <body>
     <div id="app" class="app-container"></div>
 
-    <script src="/static/js/config.js"></script>
-    <script src="/static/js/utils.js"></script>
-    <script src="/static/js/theme.js"></script>
-    <script src="/static/js/chart.js"></script>
-    <script src="/static/js/fetcher.js"></script>
-    <script src="/static/js/components/sidebar.js"></script>
-    <script src="/static/js/components/cpu-panel.js"></script>
-    <script src="/static/js/components/memory-panel.js"></script>
-    <script src="/static/js/components/disk-panel.js"></script>
-    <script src="/static/js/components/network-panel.js"></script>
-    <script src="/static/js/components/gpu-panel.js"></script>
-    <script src="/static/js/app.js"></script>
+    <script src="static/js/config.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/theme.js"></script>
+    <script src="static/js/chart.js"></script>
+    <script src="static/js/fetcher.js"></script>
+    <script src="static/js/components/sidebar.js"></script>
+    <script src="static/js/components/cpu-panel.js"></script>
+    <script src="static/js/components/memory-panel.js"></script>
+    <script src="static/js/components/disk-panel.js"></script>
+    <script src="static/js/components/network-panel.js"></script>
+    <script src="static/js/components/gpu-panel.js"></script>
+    <script src="static/js/app.js"></script>
 </body>
 </html>

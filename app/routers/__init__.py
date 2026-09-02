@@ -5,6 +5,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import FileResponse
 
 from ..common import dependence_mounter
 from .api    import router as api_router

@@ -26,7 +26,8 @@ async def serve_static(full_path: str):
     return {"detail": "File not exist"}
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+# 主页
+@router.get("/")
 async def serve_index() -> FileResponse:
     """
     提供前端首页 HTML 文件。
