@@ -47,6 +47,7 @@ class DataFetcher {
     start() {
         if (this.isRunning) return;
         this.isRunning = true;
+        this._fetchOnce();
         this._scheduleNext();
     }
 
