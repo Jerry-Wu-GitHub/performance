@@ -1,25 +1,68 @@
 ---
-# 详细文档见https://modelscope.cn/docs/%E5%88%9B%E7%A9%BA%E9%97%B4%E5%8D%A1%E7%89%87
-domain: #领域：cv/nlp/audio/multi-modal/AutoML
-# - cv
-tags: #自定义标签
+domain: # 领域
+tags: # 自定义标签
 -
-datasets: #关联数据集
+datasets: # 关联数据集
   evaluation:
-  #- iic/ICDAR13_HCTR_Dataset
   test:
-  #- iic/MTWI
   train:
-  #- iic/SIBR
-models: #关联模型
-#- iic/ofa_ocr-recognition_general_base_zh
+models: # 关联模型
 
-## 启动文件(若SDK为Gradio/Streamlit，默认为app.py, 若为Static HTML, 默认为index.html)
-# deployspec:
-#   entry_file: app.py
+# 启动文件
+deployspec:
+  entry_file: main.py
 license: Apache License 2.0
 ---
-#### Clone with HTTP
+
+# 性能监控
+
+## 简介
+
+这是一个 FastAPI 项目。
+
+本项目能很方便地为您的网络应用添加一个性能监控界面。
+
+该界面会展示以下项目的信息：
+
+- CPU
+- 内存
+- 磁盘
+- 网络
+- GPU
+
+## 快速开始
+
+### Clone with HTTP
+
+把本项目克隆到您的项目根目录下。
+
 ```bash
- git clone https://www.modelscope.cn/studios/JerryWuModelScope/performance.git
+git submodule add https://github.com/Jerry-Wu-GitHub/performance.git performance
+git submodule update --remote
 ```
+
+### 设置依赖
+
+这一步是可选的。
+
+您可以为与性能监控相关的页面和 API 添加依赖，用以身份验证等。
+
+```python
+from performance import dependence_mounter
+
+dependence_mounter.register(dependence) # `dependence` 是您要添加的依赖函数
+```
+
+您还可以额外传入 `route_pattern` 参数，来过滤要执行该依赖的路由。
+
+### 注册路由
+
+```python
+from performance import get_router
+
+app.include_router(get_router(prefix="子应用前缀"))
+```
+
+## 示例
+
+见 [`main.py`](main.py) 。
