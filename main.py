@@ -9,7 +9,7 @@ from fastapi import FastAPI
 
 # 本地模块
 from app.config import HOST, PORT
-from app.router import api_router, static_router
+from app.routers import get_router
 
 # 创建 FastAPI 应用实例
 app = FastAPI(
@@ -19,8 +19,7 @@ app = FastAPI(
 )
 
 # 挂载路由
-app.include_router(api_router)  # /api/v1/performance/*
-app.include_router(static_router)       # / 首页及 /static/* 静态资源
+app.include_router(get_router())
 
 if __name__ == "__main__":
     # 当直接运行此文件时启动 Uvicorn 服务器

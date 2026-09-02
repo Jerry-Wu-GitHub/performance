@@ -12,8 +12,6 @@ STATIC_DIR = BASE_DIR / "static"
 HTML_DIR = STATIC_DIR / "html"
 INDEX_PATH = HTML_DIR / "index.html"
 
-print(STATIC_DIR)
-
 # 服务监听配置
 HOST = "0.0.0.0"
 PORT = 7860
