@@ -37,9 +37,10 @@ const NetworkPanelComponent = {
         });
     },
 
-    update(data) {
+    update(data, meta = {}) {
+        const timestamp = meta.timestamp ? meta.timestamp * 1000 : null;
         const totals = this._calculateTotalSpeed(data);
-        this.mainChart.push(totals.totalReceive, totals.totalSend);
+        this.mainChart.push(totals.totalReceive, totals.totalSend, timestamp);
         this._renderSummary(totals, data.activeNics.length);
         this._renderNicList(data);
     },

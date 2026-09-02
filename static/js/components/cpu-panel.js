@@ -47,8 +47,9 @@ const CpuPanelComponent = {
      * 更新面板数据
      * @param {object} data - CPUStats 数据
      */
-    update(data) {
-        this.mainChart.push(data.overallUsage);
+    update(data, meta = {}) {
+        const timestamp = meta.timestamp ? meta.timestamp * 1000 : null;
+        this.mainChart.push(data.overallUsage, null, timestamp);
         this._renderTopMetrics(data);
         this._renderPerCore(data.perCpuUsage);
         this._renderBottomMetrics(data);

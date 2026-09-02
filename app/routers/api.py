@@ -4,6 +4,7 @@ API 路由：性能监控数据采集接口
 
 from fastapi import APIRouter
 from starlette import status
+import time
 
 from ..config import MEASUREMENT_INTERVAL
 from ..common import (
@@ -46,7 +47,10 @@ async def get_cpu_stats() -> ApiResponse[CPUStats]:
         ApiResponse[CPUStats]: 统一响应外壳，data 字段包含 CPUStats 模型。
     """
     stats = await collect_cpu_stats(cpu_stats_collector, interval=MEASUREMENT_INTERVAL)
-    return ApiResponse(data=stats)
+    return ApiResponse(
+        data=stats,
+        meta={"timestamp": time.time()}
+    )
 
 
 @router.get("/memory", status_code=status.HTTP_200_OK, response_model=ApiResponse[MemoryStats])
@@ -62,7 +66,10 @@ async def get_memory_stats() -> ApiResponse[MemoryStats]:
         ApiResponse[MemoryStats]: 统一响应外壳，data 字段包含 MemoryStats 模型。
     """
     stats = await collect_memory_stats(memory_stats_collector)
-    return ApiResponse(data=stats)
+    return ApiResponse(
+        data=stats,
+        meta={"timestamp": time.time()}
+    )
 
 
 @router.get("/disk", status_code=status.HTTP_200_OK, response_model=ApiResponse[DiskStats])
@@ -84,7 +91,10 @@ async def get_disk_stats() -> ApiResponse[DiskStats]:
         path="/",
         interval=MEASUREMENT_INTERVAL,
     )
-    return ApiResponse(data=stats)
+    return ApiResponse(
+        data=stats,
+        meta={"timestamp": time.time()}
+    )
 
 
 @router.get("/network", status_code=status.HTTP_200_OK, response_model=ApiResponse[NetworkStats])
@@ -102,7 +112,10 @@ async def get_network_stats() -> ApiResponse[NetworkStats]:
         ApiResponse[NetworkStats]: 统一响应外壳，data 字段包含 NetworkStats 模型。
     """
     stats = await collect_network_stats(network_stats_collector, interval=MEASUREMENT_INTERVAL)
-    return ApiResponse(data=stats)
+    return ApiResponse(
+        data=stats,
+        meta={"timestamp": time.time()}
+    )
 
 
 @router.get("/gpu", status_code=status.HTTP_200_OK, response_model=ApiResponse[GPUStats])
@@ -118,4 +131,7 @@ async def get_gpu_stats() -> ApiResponse[GPUStats]:
                                 若无 GPU，则 gpus 列表为空。
     """
     stats = await collect_gpu_stats(gpu_stats_collector)
-    return ApiResponse(data=stats)
+    return ApiResponse(
+        data=stats,
+        meta={"timestamp": time.time()}
+    )

@@ -38,8 +38,9 @@ const DiskPanelComponent = {
         });
     },
 
-    update(data) {
-        this.mainChart.push(data.utilization);
+    update(data, meta = {}) {
+        const timestamp = meta.timestamp ? meta.timestamp * 1000 : null;
+        this.mainChart.push(data.utilization, null, timestamp);
         this._renderOverview(data);
         this._renderRates(data);
         this._renderTotals(data);

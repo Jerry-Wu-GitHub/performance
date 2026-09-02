@@ -38,8 +38,9 @@ const MemoryPanelComponent = {
         });
     },
 
-    update(data) {
-        this.mainChart.push(data.usagePercent);
+    update(data, meta = {}) {
+        const timestamp = meta.timestamp ? meta.timestamp * 1000 : null;
+        this.mainChart.push(data.usagePercent, null, timestamp);
         this._renderMainMetrics(data);
         this._renderDetailMetrics(data);
         this._renderSwapMetrics(data);

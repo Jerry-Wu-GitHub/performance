@@ -78,12 +78,6 @@ class DiskStats(BaseSchema):
         ge=0.0,
     )
 
-    # ---------- 采样时间戳 ----------
-    timestamp: float = Field(
-        description="数据采集时间戳（Unix 秒数）",
-        ge=0,
-    )
-
 
 async def collect_disk_stats(
     collector: DiskStatsCollector,
@@ -122,5 +116,4 @@ async def collect_disk_stats(
         iops_write=io_rates["iops_write"],
         utilization=iostat["utilization"],
         await_ms=iostat["await_ms"],
-        timestamp=data["timestamp"],
     )

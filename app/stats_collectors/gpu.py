@@ -187,16 +187,14 @@ class GPUStatsCollector:
         return await self._run_in_executor(self._get_gpu_metrics_sync)
 
 
-    async def get_all(self) -> Dict[str, Union[List, float]]:
+    async def get_all(self) -> Dict[str, List]:
         """
         一次性获取所有 GPU 指标，附带采样时间戳。
 
         :return: 包含以下键的字典：
             - gpus (List[Dict]): 同 `get_gpu_metrics()` 的返回值
-            - timestamp (float): 采样时间戳（Unix 秒数）
         """
         gpus = await self.get_gpu_metrics()
         return {
-            "gpus": gpus,
-            "timestamp": time.time()
+            "gpus": gpus
         }

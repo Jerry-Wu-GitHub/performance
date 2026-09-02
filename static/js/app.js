@@ -52,31 +52,35 @@ class MonitorApplication {
     }
 
     _bindDataSubscriptions() {
-        this.fetchers.cpu.subscribe(data => {
+        this.fetchers.cpu.subscribe((data, meta) => {
+            const timestamp = meta?.timestamp ? meta.timestamp * 1000 : null;
             SidebarComponent.updateMini('cpu', data.overallUsage, [
                 data.overallUsage.toFixed(1) + '%',
                 data.currentFreqMhz ? data.currentFreqMhz.toFixed(0) + ' MHz' : '—'
-            ]);
-            this.panels.cpu.update(data);
+            ], timestamp);
+            this.panels.cpu.update(data, meta);
         });
 
-        this.fetchers.memory.subscribe(data => {
+        this.fetchers.memory.subscribe((data, meta) => {
+            const timestamp = meta?.timestamp ? meta.timestamp * 1000 : null;
             SidebarComponent.updateMini('memory', data.usagePercent, [
                 `${FormatUtils.formatBytes(data.usedBytes)} / ${FormatUtils.formatBytes(data.totalBytes)}`,
                 data.usagePercent.toFixed(1) + '%'
-            ]);
-            this.panels.memory.update(data);
+            ], timestamp);
+            this.panels.memory.update(data, meta);
         });
 
-        this.fetchers.disk.subscribe(data => {
+        this.fetchers.disk.subscribe((data, meta) => {
+            const timestamp = meta?.timestamp ? meta.timestamp * 1000 : null;
             SidebarComponent.updateMini('disk', data.utilization, [
                 data.utilization.toFixed(1) + '%',
                 data.awaitMs.toFixed(1) + ' ms'
-            ]);
-            this.panels.disk.update(data);
+            ], timestamp);
+            this.panels.disk.update(data, meta);
         });
 
-        this.fetchers.network.subscribe(data => {
+        this.fetchers.network.subscribe((data, meta) => {
+            const timestamp = meta?.timestamp ? meta.timestamp * 1000 : null;
             let totalSend = 0;
             let totalReceive = 0;
             Object.values(data.nicSpeeds).forEach(s => {
@@ -86,22 +90,23 @@ class MonitorApplication {
             SidebarComponent.updateMini('network', totalReceive, [
                 '↑ ' + FormatUtils.formatBytesPerSecond(totalSend),
                 '↓ ' + FormatUtils.formatBytesPerSecond(totalReceive)
-            ]);
-            this.panels.network.update(data);
+            ], timestamp);
+            this.panels.network.update(data, meta);
         });
 
-        this.fetchers.gpu.subscribe(data => {
+        this.fetchers.gpu.subscribe((data, meta) => {
+            const timestamp = meta?.timestamp ? meta.timestamp * 1000 : null;
             const gpus = data.gpus || [];
             if (gpus.length > 0) {
                 const first = gpus[0];
                 SidebarComponent.updateMini('gpu', first.gpuUtil, [
                     first.name.split(' ').slice(-2).join(' '),
                     first.gpuUtil.toFixed(1) + '%'
-                ]);
+                ], timestamp);
             } else {
-                SidebarComponent.updateMini('gpu', 0, ['无 GPU', '—']);
+                SidebarComponent.updateMini('gpu', 0, ['无 GPU', '—'], timestamp);
             }
-            this.panels.gpu.update(data);
+            this.panels.gpu.update(data, meta);
         });
     }
 

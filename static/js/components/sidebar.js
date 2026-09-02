@@ -89,9 +89,10 @@ const SidebarComponent = {
      * @param {string} key - 模块键名
      * @param {number} value - 图表值
      * @param {string[]} texts - 两行说明文字
+     * @param {number|null} timestamp - 时间戳（毫秒）
      */
-    updateMini(key, value, texts) {
-        this.miniCharts[key].push(value);
+    updateMini(key, value, texts, timestamp = null) {
+        this.miniCharts[key].push(value, null, timestamp);
 
         const sub = document.getElementById(`${key}-mini-sub`);
         if (sub && texts.length >= 2) {

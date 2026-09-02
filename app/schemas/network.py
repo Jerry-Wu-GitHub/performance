@@ -108,10 +108,6 @@ class NetworkStats(BaseSchema):
     nic_speeds: Dict[str, NicSpeeds] = Field(
         description="各网卡的实时收发速率（字节/秒），键为网卡名",
     )
-    timestamp: float = Field(
-        description="数据采集时间戳（Unix 秒数）",
-        ge=0,
-    )
 
 
 async def collect_network_stats(
@@ -173,5 +169,4 @@ async def collect_network_stats(
         nic_configs=nic_configs,
         nic_counters=nic_counters,
         nic_speeds=nic_speeds,
-        timestamp=data["timestamp"],
     )

@@ -16,16 +16,14 @@ const GpuPanelComponent = {
         container.appendChild(section);
     },
 
-    update(data) {
+    update(data, meta = {}) {
         const gpus = data.gpus || [];
         const container = document.getElementById('gpu-cards-container');
         container.innerHTML = '';
-
         if (gpus.length === 0) {
             container.innerHTML = '<div class="gpu-empty">未检测到支持的 GPU 设备</div>';
             return;
         }
-
         gpus.forEach(gpu => {
             const card = document.createElement('div');
             card.className = 'gpu-card';

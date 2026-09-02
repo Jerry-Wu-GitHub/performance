@@ -248,7 +248,6 @@ class DiskStatsCollector:
             - io_counters (Dict): 累积 I/O 计数器（见 `get_io_counters`）
             - io_rates (Dict): 读写速率（字节/秒）和 IOPS（见 `get_io_rates`）
             - iostat (Dict): 利用率和 await（见 `get_iostat`）
-            - timestamp (float): 采样时间戳
         """
         total_task = self.get_total_bytes(path)
         type_task = self.get_disk_type()
@@ -266,5 +265,4 @@ class DiskStatsCollector:
             "io_counters": counters,
             "io_rates": rates,
             "iostat": iostat,
-            "timestamp": time.time(),
         }

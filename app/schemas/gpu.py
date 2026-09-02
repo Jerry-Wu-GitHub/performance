@@ -41,15 +41,11 @@ class GPUMetrics(BaseSchema):
 
 class GPUStats(BaseSchema):
     """
-    GPU 状态数据模型，包含所有 GPU 的监控指标及采集时间。
+    GPU 状态数据模型，包含所有 GPU 的监控指标。
     """
 
     gpus: List[GPUMetrics] = Field(
         description="所有 GPU 的指标列表，若无 GPU 则为空列表",
-    )
-    timestamp: float = Field(
-        description="数据采集时间戳（Unix 秒数）",
-        ge=0,
     )
 
 
@@ -66,4 +62,4 @@ async def collect_gpu_stats(
     """
     data = await collector.get_all()
     gpus = [GPUMetrics(**gpu) for gpu in data["gpus"]]
-    return GPUStats(gpus=gpus, timestamp=data["timestamp"])
+    return GPUStats(gpus=gpus)

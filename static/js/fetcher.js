@@ -14,6 +14,7 @@ class DataFetcher {
         this.timeoutId = null;
         this.pollInterval = AppConfig.SLOW_POLL_INTERVAL;
         this.latestData = null;
+        this.latestMeta = null;
         this.isFetching = false;
         this.isRunning = false;
     }
@@ -25,7 +26,7 @@ class DataFetcher {
     subscribe(callback) {
         this.subscribers.push(callback);
         if (this.latestData) {
-            callback(this.latestData);
+            callback(this.latestData, this.latestMeta);
         }
     }
 
@@ -84,7 +85,8 @@ class DataFetcher {
             const result = await response.json();
             if (result.data) {
                 this.latestData = result.data;
-                this.subscribers.forEach(callback => callback(result.data));
+                this.latestMeta = result.meta || {};
+                this.subscribers.forEach(callback => callback(result.data, result.meta || {}));
             }
         } catch (error) {
             console.error(`Fetch ${this.endpoint} failed:`, error);

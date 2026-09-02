@@ -207,7 +207,6 @@ class NetworkStatsCollector:
             - nic_info (Dict): 各网卡配置信息（同 get_nic_info）
             - io_counters (Dict): 各网卡累计流量（同 get_io_counters(pernic=True)）
             - speeds (Dict): 实时速率（同 get_network_speeds）
-            - timestamp (float): 采样时间戳
         """
         # 并行获取基础信息（瞬时）和速率（阻塞）
         active_task = self.get_active_nics()
@@ -225,5 +224,4 @@ class NetworkStatsCollector:
             "nic_info": nic_info,
             "io_counters": counters,
             "speeds": speeds,
-            "timestamp": time.time(),
         }
