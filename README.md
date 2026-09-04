@@ -55,12 +55,17 @@ dependence_mounter.register(dependence) # `dependence` 是您要添加的依赖�
 
 您还可以额外传入 `route_pattern` 参数，来过滤要执行该依赖的路由。
 
+注意，以上方法添加的依赖函数不能有参数。如果您要添加有 FastAPI 注入参数的依赖函数，请参见[注册路由](#注册路由)。
+
 ### 注册路由
 
 ```python
 from performance import get_router
 
-app.include_router(get_router(prefix="子应用前缀"))
+app.include_router(get_router(
+    prefix="子应用前缀",
+    dependencies=[dependence] # 可选。`dependence` 是您要添加的依赖函数
+))
 ```
 
 ## 示例
