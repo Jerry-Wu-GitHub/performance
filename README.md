@@ -9,8 +9,8 @@ datasets: # 关联数据集
 models: # 关联模型
 
 # 启动文件
-deployspec:
-  entry_file: main.py
+# deployspec:
+#   entry_file: main.py
 license: Apache License 2.0
 ---
 
