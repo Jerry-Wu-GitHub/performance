@@ -6,13 +6,13 @@ from fastapi import APIRouter
 from starlette import status
 import time
 
-from ..config import MEASUREMENT_INTERVAL
 from ..common import (
-    cpu_stats_collector,
-    memory_stats_collector,
-    disk_stats_collector,
-    network_stats_collector,
-    gpu_stats_collector,
+    get_config,
+    get_cpu_stats_collector,
+    get_memory_stats_collector,
+    get_disk_stats_collector,
+    get_network_stats_collector,
+    get_gpu_stats_collector,
 )
 from ..schemas import (
     ApiResponse,
@@ -28,7 +28,14 @@ from ..schemas import (
     collect_gpu_stats,
 )
 
+
 router = APIRouter(prefix="/api/v1/performance", tags=["Performance API"])
+config = get_config()
+cpu_stats_collector = get_cpu_stats_collector()
+memory_stats_collector = get_memory_stats_collector()
+disk_stats_collector = get_disk_stats_collector()
+network_stats_collector = get_network_stats_collector()
+gpu_stats_collector = get_gpu_stats_collector()
 
 
 @router.get("/cpu", status_code=status.HTTP_200_OK, response_model=ApiResponse[CPUStats])
@@ -46,7 +53,10 @@ async def get_cpu_stats() -> ApiResponse[CPUStats]:
     Returns:
         ApiResponse[CPUStats]: 统一响应外壳，data 字段包含 CPUStats 模型。
     """
-    stats = await collect_cpu_stats(cpu_stats_collector, interval=MEASUREMENT_INTERVAL)
+    stats = await collect_cpu_stats(
+        cpu_stats_collector,
+        interval=config.performance_measurement_interval
+    )
     return ApiResponse(
         data=stats,
         meta={"timestamp": time.time()}
@@ -89,7 +99,7 @@ async def get_disk_stats() -> ApiResponse[DiskStats]:
     stats = await collect_disk_stats(
         disk_stats_collector,
         path="/",
-        interval=MEASUREMENT_INTERVAL,
+        interval=config.performance_measurement_interval,
     )
     return ApiResponse(
         data=stats,
@@ -111,7 +121,10 @@ async def get_network_stats() -> ApiResponse[NetworkStats]:
     Returns:
         ApiResponse[NetworkStats]: 统一响应外壳，data 字段包含 NetworkStats 模型。
     """
-    stats = await collect_network_stats(network_stats_collector, interval=MEASUREMENT_INTERVAL)
+    stats = await collect_network_stats(
+        network_stats_collector,
+        interval=config.performance_measurement_interval
+    )
     return ApiResponse(
         data=stats,
         meta={"timestamp": time.time()}

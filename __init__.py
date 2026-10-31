@@ -1,2 +1,1 @@
-from .app.common import dependence_mounter
-from .app.routers import get_router
+from .app import get_router, get_config
